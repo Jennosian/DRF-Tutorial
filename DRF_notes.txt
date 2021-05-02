@@ -1,0 +1,46 @@
+Useful commands:
+python manage.py shell
+
+Tee relation niimoodi:
+
+Because 'snippets' is a reverse relationship on the User model, it will not be included by default when using the ModelSerializer class, 
+so we needed to add an explicit field for it.
+
+from django.contrib.auth.models import User
+
+class UserSerializer(serializers.ModelSerializer):
+    snippets = serializers.PrimaryKeyRelatedField(many=True, queryset=Snippet.objects.all())
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'snippets']
+
+Reverse relationship:
+https://stackoverflow.com/questions/17328910/django-what-is-reverse-relationship
+
+VAATA KUIDAS /users on ühendatud samamoodi listina nagu M2M suhe
+
+
+
+Kasutaja lisamine: - samamoodi saad salvestada misiganes related modelisse teisest mudelist välju.
+views.py lisa
+
+def perform_create(self, serializer):
+    serializer.save(owner=self.request.user)
+
+owner = serializers.ReadOnlyField(source='owner.username')
+
+
+Hyperlinkedserializeritega jäta ka id väli serializerisse sisse, et selle järgi saaks filtreerida.
+
+Siit vaata kuidas teha PK pealt Hyperlingi peale:
+https://www.django-rest-framework.org/tutorial/5-relationships-and-hyperlinked-apis/
+
+
+Paginationit muuda nii:
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
+
+
